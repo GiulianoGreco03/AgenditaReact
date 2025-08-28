@@ -1,8 +1,9 @@
 import Box from "@mui/material/Box"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
+import type { textFieldTemplate } from "../../../Interfaces/FormTemplate/textFieldTemplate.interface"
 
-function TextFieldItem({title, description, order}){
+function TextFieldItem({title, description, order}:textFieldTemplate){
     return(
         <Box key={order} sx={{display:"flex",flexDirection:"column" , alignItems:"center"}}>
             <Typography>{title}</Typography>

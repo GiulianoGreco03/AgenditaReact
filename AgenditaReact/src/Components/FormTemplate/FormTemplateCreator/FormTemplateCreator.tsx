@@ -10,6 +10,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import { useState } from "react";
 import TextFieldItem from "../TextFieldItem/TextField";
 import Input from "@mui/material/Input";
+import SelectItem from "../SelectItem/SelectItem";
 
 function FormTemplateCreator() {
   //const { register, handleSumbit } = useForm();
@@ -19,21 +20,73 @@ function FormTemplateCreator() {
   const [selects, setSelects] = useState<selectTemplate[]>([]);
 
   const [textFieldInput, setTextFieldInput] = useState("");
+  const [checkboxInput, setCheckboxInput] = useState("");
+  const [selectInput, setSelectInput] = useState("");
+  const [optionInputs, setOptionInputs] = useState<Record<number, string>>({});
 
-  const [textFieldOrder, setTextFieldOrder] = useState(0);
+  const [textFieldOrder, setTextFieldOrder] = useState(textFields.length);
+  const [checkboxOrder, setCheckboxOrder] = useState(checkboxes.length);
+  const [selectOrder, setSelectOrder] = useState(selects.length);
 
   const createTextField = (name: string) => {
-    if(name!= null && name!=""){
-        setTextFieldOrder(textFieldOrder + 1);
-        const newField: textFieldTemplate = { title: name, order: textFieldOrder };
-        setTextFields((prev) => [...prev, newField]);
-        setTextFieldInput("")
+    if (name != null && name != "") {
+      const newField: textFieldTemplate = {
+        title: name,
+        description: "",
+        order: textFieldOrder,
+      };
+      setTextFieldOrder(textFieldOrder + 1);
+      setTextFields((prev) => [...prev, newField]);
+      setTextFieldInput("");
+    }
+  };
+
+  const createCheckbox = (name: string) => {
+    if (name != null && name != "") {
+      const newCheck: checkboxTemplate = { title: name, order: textFieldOrder };
+      setCheckboxOrder(checkboxOrder + 1);
+      setCheckboxes((prev) => [...prev, newCheck]);
+      setCheckboxInput("");
+    }
+  };
+
+  const createSelect = (name: string) => {
+    if (name != null && name != "") {
+      const newSelect: selectTemplate = {
+        title: name,
+        order: selectOrder,
+        options: [],
+      };
+      setSelectOrder(selectOrder + 1);
+      setSelects((prev) => [...prev, newSelect]);
+      setSelectInput("");
     }
   };
 
   const deleteTextField = (textField: textFieldTemplate) => {
     const newTextFields = textFields.filter((t) => t.order != textField.order);
     setTextFields(newTextFields);
+  };
+
+  const deleteCheckbox = (checkbox: checkboxTemplate) => {
+    const newCheckboxes = checkboxes.filter((t) => t.order != checkbox.order);
+    setCheckboxes(newCheckboxes);
+  };
+
+  const deleteSelect = (select: selectTemplate) => {
+    const newSelects = selects.filter((t) => t.order != select.order);
+    setSelects(newSelects);
+  };
+
+  const addOptionToSelect = (order: number) => {
+    setSelects((prev) =>
+      prev.map((select) =>
+        select.order === order
+          ? { ...select, options: [...select.options, { option: optionInputs[order] }] }
+          : select
+      )
+    );
+    setOptionInputs(optionInputs[order]="");
   };
 
   return (
@@ -54,30 +107,71 @@ function FormTemplateCreator() {
           </Button>
           {textFields.map((text) => {
             return (
-              <Box key={text.order} sx={{display:"flex", alignItems:"center"}}>
-                <TextFieldItem title={text.title} description="" order={text.order}/>
+              <Box
+                key={text.order}
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <TextFieldItem
+                  title={text.title}
+                  description=""
+                  order={text.order}
+                />
                 <Button onClick={() => deleteTextField(text)}>eliminar</Button>
               </Box>
             );
           })}
         </Box>
-        {/* <Box>
+        <Box>
           <input
-            value={textFieldInput}
-            onChange={(e) => setTextFieldInput(e.target.value)}
+            value={checkboxInput}
+            onChange={(e) => setCheckboxInput(e.target.value)}
           />
-          <Button onClick={() => createTextField(textFieldInput)}>
+          <Button onClick={() => createCheckbox(checkboxInput)}>
             Agregar checkbox
           </Button>
-          {textFields.map((text) => {
+          {checkboxes.map((text) => {
             return (
               <Box key={text.order}>
                 <FormControlLabel control={<Checkbox />} label={text.title} />
-                <Button onClick={() => deleteTextField(text)}>eliminar</Button>
+                <Button onClick={() => deleteCheckbox(text)}>eliminar</Button>
               </Box>
             );
           })}
-        </Box> */}
+        </Box>
+        <Box>
+          <input
+            value={selectInput}
+            onChange={(e) => setSelectInput(e.target.value)}
+          />
+          <Button onClick={() => createSelect(selectInput)}>
+            Agregar menú desplegable
+          </Button>
+          {selects.map((text) => {
+            return (
+              <Box key={text.order}>
+                <SelectItem
+                  title={text.title}
+                  order={text.order}
+                  options={text.options}
+                />
+                <Input
+                  value={optionInputs[text.order] || ""}
+                  onChange={(e) =>
+                    setOptionInputs({
+                      ...optionInputs,
+                      [text.order]: e.target.value,
+                    })
+                  }
+                />
+                <Button onClick={() => addOptionToSelect(text.order)}>
+                  {" "}
+                  Agregar opción
+                </Button>
+                <Button onClick={() => deleteSelect(text)}>eliminar</Button>
+              </Box>
+            );
+          })}
+        </Box>
       </form>
     </Box>
   );
