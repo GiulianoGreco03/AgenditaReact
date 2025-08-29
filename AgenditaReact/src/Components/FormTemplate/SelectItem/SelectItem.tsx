@@ -13,7 +13,7 @@ function SelectItem({ title, order, options }: selectTemplate) {
   return (
     <Box key={order}>
       <Typography>{title}</Typography>
-      <Select fullWidth value={selectedOption} onChange={(e)=>setSelectedOption(e.target.value)}>
+      <Select  value={selectedOption} onChange={(e)=>setSelectedOption(e.target.value)}>
         {options.map((option, index) => (
           <MenuItem key={index} value={option.option}>
             {option.option}
