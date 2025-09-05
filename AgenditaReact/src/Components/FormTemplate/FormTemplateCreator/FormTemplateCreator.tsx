@@ -5,18 +5,16 @@ import type { textFieldTemplate } from "../../../Interfaces/FormTemplate/textFie
 import type { checkboxTemplate } from "../../../Interfaces/FormTemplate/checkboxTemplate.interface";
 import type { selectTemplate } from "../../../Interfaces/FormTemplate/selectTemplate.interface";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import { useRef, useState } from "react";
-import TextFieldItem from "../TextFieldItem/TextField";
-import SelectItem from "../SelectItem/SelectItem";
 import Container from "@mui/material/Container";
 import TextField from "@mui/material/TextField";
 import { FormType } from "../../../Enums/FormTypesEnum";
+import FormElementList from "../FormElementsList/FormElementsList";
+import type { FormElement } from "../../../Types/FormTypes";
+import { closestCorners, DndContext } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
 
 function FormTemplateCreator() {
-  type FormElement = selectTemplate | checkboxTemplate | textFieldTemplate;
-
   const [formElements, setFormElements] = useState<FormElement[]>([]);
 
   const [textFieldInput, setTextFieldInput] = useState("");
@@ -29,6 +27,7 @@ function FormTemplateCreator() {
   const createTextField = (name: string) => {
     if (name.trim() === "") return;
     const newField: textFieldTemplate = {
+      id: order.current,
       type: FormType.Textfield,
       title: name,
       description: "",
@@ -42,11 +41,14 @@ function FormTemplateCreator() {
   const createCheckbox = (name: string) => {
     if (name.trim() === "") return;
     const newCheck: checkboxTemplate = {
+      id: order.current,
       type: FormType.Checkbox,
       title: name,
       order: order.current,
     };
     order.current += 1;
+    console.log(formElements);
+    
     setFormElements((prev) => [...prev, newCheck]);
     setCheckboxInput("");
   };
@@ -54,6 +56,7 @@ function FormTemplateCreator() {
   const createSelect = (name: string) => {
     if (name.trim() === "") return;
     const newSelect: selectTemplate = {
+      id: order.current,
       type: FormType.Select,
       title: name,
       order: order.current,
@@ -84,6 +87,22 @@ function FormTemplateCreator() {
     );
     setOptionInputs((prev) => ({ ...prev, [order]: "" }));
   };
+
+  const getElementPosition = (id: number | string) => formElements.findIndex((aux)=>aux.id === id)
+  
+  const handleDragEnd = event =>{
+    const {active, over} = event
+    if(active.id === over.id) return
+
+    setFormElements(elements =>{
+      const originalPos = getElementPosition(active.id)
+      const newPos = getElementPosition(over.id)
+      console.log(formElements);
+      
+      return arrayMove(elements, originalPos, newPos)
+    })
+    
+  }
 
   return (
     <Container>
@@ -123,64 +142,15 @@ function FormTemplateCreator() {
         </Box>
 
         <Box>
-          {formElements.map((e) => {
-            switch (e.type) {
-              case FormType.Textfield:
-                return (
-                  <Box
-                    key={e.order}
-                    sx={{ display: "flex", alignItems: "center" }}
-                  >
-                    <TextFieldItem
-                      type={FormType.Textfield}
-                      title={e.title}
-                      description=""
-                      order={e.order}
-                    />
-                    <Button onClick={() => deleteElement(e)}>eliminar</Button>
-                  </Box>
-                );
-              case FormType.Checkbox:
-                return (
-                  <Box key={e.order}>
-                    <FormControlLabel
-                      control={<Checkbox />}
-                      key={e.order}
-                      label={e.title}
-                    />
-                    <Button onClick={() => deleteElement(e)}>eliminar</Button>
-                  </Box>
-                );
-              case FormType.Select:
-                return (
-                  <Box key={e.order}>
-                    <SelectItem
-                      type={e.type}
-                      title={e.title}
-                      order={e.order}
-                      options={e.options}
-                    />
-                    <TextField
-                      value={optionInputs[e.order] || ""}
-                      onChange={(or) =>
-                        setOptionInputs({
-                          ...optionInputs,
-                          [e.order]: or.target.value
-                        })
-                      }
-                    />
-                    <Button
-                      onClick={() =>
-                        addOptionToSelect(e.order, optionInputs[e.order])
-                      }
-                    >
-                      Agregar opción
-                    </Button>
-                    <Button onClick={() => deleteElement(e)}>eliminar</Button>
-                  </Box>
-                );
-            }
-          })}
+          <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+            <FormElementList
+              formElements={formElements}
+              deleteElement={deleteElement}
+              addOptionToSelect={addOptionToSelect}
+              optionInputs={optionInputs}
+              setOptionInputs={setOptionInputs}
+            />
+          </DndContext>
         </Box>
       </form>
     </Container>

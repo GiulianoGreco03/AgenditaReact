@@ -1,0 +1,15 @@
+.formListElement{
+    display: flex;
+    align-items: center;
+    width: 45rem;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 1rem;
+    padding: 1rem;
+}
+
+.formList{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
