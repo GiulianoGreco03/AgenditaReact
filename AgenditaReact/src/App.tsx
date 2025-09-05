@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from 'react-router'
 import './App.css'
 import Navbar from './Components/Navbar/Navbar'
 import FormTemplateCreator from './Components/FormTemplate/FormTemplateCreator/FormTemplateCreator'
+import Calendar from './Components/Calendar/Calendar'
 
 function App() {
 
@@ -10,7 +11,7 @@ function App() {
       <BrowserRouter>
       <Navbar />
         <Routes>
-          <Route path='/calender' element={<div>hola</div>} />
+          <Route path='/calendar' element={<Calendar />} />
           <Route path='/form-creator' element={<FormTemplateCreator/>} />
         </Routes>
       </BrowserRouter>
