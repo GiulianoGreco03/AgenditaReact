@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import { FormType } from "../../../Enums/FormTypesEnum";
 import FormElementList from "../FormElementsList/FormElementsList";
 import type { FormElement } from "../../../Types/FormTypes";
-import { closestCorners, DndContext } from "@dnd-kit/core";
+import { closestCorners, DndContext, type DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
 function FormTemplateCreator() {
@@ -90,17 +90,17 @@ function FormTemplateCreator() {
 
   const getElementPosition = (id: number | string) => formElements.findIndex((aux)=>aux.id === id)
   
-  const handleDragEnd = event =>{
+  const handleDragEnd = (event:DragEndEvent) =>{
     const {active, over} = event
-    if(active.id === over.id) return
+    if(active.id === over?.id) return
 
-    setFormElements(elements =>{
-      const originalPos = getElementPosition(active.id)
-      const newPos = getElementPosition(over.id)
-      console.log(formElements);
-      
-      return arrayMove(elements, originalPos, newPos)
-    })
+    if(over){  setFormElements(elements =>{
+        const originalPos = getElementPosition(active.id)
+        const newPos = getElementPosition(over.id)
+        console.log(formElements);
+        
+        return arrayMove(elements, originalPos, newPos)
+      })}
     
   }
 
